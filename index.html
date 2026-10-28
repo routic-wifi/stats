@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Статистика проектов</title>
+<!--pwa: installable app on the published copy; build.mjs drops this block from the Desktop file -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#151935" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Статистика">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!--/pwa-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap">
@@ -16,6 +27,7 @@
   --ig: #8B4BD8; --yt: #E5484D; --tt: #0F9FB3;
   --good: #1E9E5A; --bad: #D6334B; --warn: #C27A00;
   --chip-good: #E3F6EC; --chip-bad: #FCE6E9; --chip-hot: #FFF3D1;
+  --statusbar: #14162E;
   --f-display: "Unbounded", "Segoe UI", system-ui, sans-serif;
   --f-ui: "Onest", "Segoe UI", system-ui, -apple-system, sans-serif;
   color-scheme: light;
@@ -43,11 +55,15 @@ a { color: inherit }
 
 .app { max-width: 560px; min-height: 100vh; margin: 0 auto; background: var(--app); display: flex; flex-direction: column;
   border-inline: 1px solid var(--line) }
-.top { position: sticky; top: 0; z-index: 4; background: var(--surface); border-bottom: 1px solid var(--line);
-  padding: 12px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); padding-top: calc(12px + env(safe-area-inset-top, 0px));
-  display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap }
+/* The band under the phone's status bar (installed app on iPhone draws under it): dark in both themes, so its white text reads. */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--statusbar) }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 4; background: var(--surface); border-bottom: 1px solid var(--line);
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap }
 .top b { font-family: var(--f-display); font-weight: 700; font-size: 16px }
-.top span { font-size: 12px; color: var(--muted) }
+.top-r { display: flex; align-items: center; gap: 8px }
+.upd { background: none; border: 0; padding: 4px 0; font-size: 12px; color: var(--muted) }
+.inst { border: 0; border-radius: 999px; padding: 5px 11px; background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 600 }
 .screen { flex: 1; padding: 16px max(14px, env(safe-area-inset-right, 0px)) 20px max(14px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 14px }
 .tabs { position: sticky; bottom: 0; z-index: 4; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); background: var(--surface);
   padding: 6px 6px calc(8px + env(safe-area-inset-bottom, 0px)) }
@@ -154,7 +170,8 @@ thead th { font-size: 12px; color: var(--muted); font-weight: 600 }
 </head>
 <body>
 <div class="app">
-  <header class="top"><b>Статистика</b><span id="updated"></span></header>
+  <header class="top"><b>Статистика</b>
+    <span class="top-r"><button class="inst" id="install" type="button" hidden>Установить</button><button class="upd" id="updated" type="button" title="Обновить"></button></span></header>
   <main class="screen" id="screen" aria-live="polite"></main>
   <nav class="tabs" aria-label="Разделы">
     <button class="tab" type="button" data-view="projects">
@@ -526,7 +543,7 @@ function start(DATA) {
   const loaded = Date.now();
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - loaded > 20 * 60e3) location.reload(); });
   const g = new Date(DATA.generated);
-  document.getElementById('updated').textContent = `обновлено ${g.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })} в ${g.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+  document.getElementById('updated').textContent = `обновлено ${g.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })} в ${g.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })} ↻`;
 
   const fromHash = () => { const h = location.hash.slice(1); return ['projects', 'summary', 'channels', 'series'].includes(h) ? h : 'projects'; };
   window.addEventListener('hashchange', () => { const v = fromHash(); if (v !== state.view) go(v); });
@@ -581,6 +598,18 @@ async function unlock() {
     if (!(await open(pw))) document.getElementById('pw-err').hidden = false;
   });
 }
+// ---------- app shell ----------
+// The installed app has no browser reload button: the «обновлено …» line reloads.
+document.getElementById('updated').addEventListener('click', () => location.reload());
+// Android / desktop Chrome and Edge offer installation; the button appears only when they do.
+let installEvent = null;
+const $install = document.getElementById('install');
+window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; $install.hidden = false; });
+$install.addEventListener('click', async () => { if (!installEvent) return; installEvent.prompt(); await installEvent.userChoice; installEvent = null; $install.hidden = true; });
+window.addEventListener('appinstalled', () => { $install.hidden = true; });
+// Offline copy of the last numbers (published copy only: a service worker needs https).
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+
 if (DATA) start(DATA); else unlock();
 </script>
 </body>
