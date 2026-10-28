@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Статистика проектов</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap">
+<style>
+/* Built by analytics\build.mjs from page.html; the look is the approved mini app mockup (insta-helper\mockup-site). */
+:root {
+  --bg: #E9EBF5; --app: #F5F6FB; --surface: #FFFFFF; --fg: #14162E; --muted: #646A8C; --line: #E0E3F0;
+  --accent: #F2B417; --accent-ink: #8A5F00; --on-accent: #14162E;
+  --ig: #8B4BD8; --yt: #E5484D; --tt: #0F9FB3;
+  --good: #1E9E5A; --bad: #D6334B; --warn: #C27A00;
+  --chip-good: #E3F6EC; --chip-bad: #FCE6E9; --chip-hot: #FFF3D1;
+  --f-display: "Unbounded", "Segoe UI", system-ui, sans-serif;
+  --f-ui: "Onest", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #07080F; --app: #0B0D1A; --surface: #151935; --fg: #F4F4F8; --muted: #A9AED0; --line: #262B4D;
+  --accent: #FFC83D; --accent-ink: #FFC83D;
+  --ig: #B98AFF; --yt: #FF5D5D; --tt: #2EE0F0;
+  --good: #34D17A; --bad: #FF5470; --warn: #FFB21A;
+  --chip-good: rgba(52,209,122,.14); --chip-bad: rgba(255,84,112,.14); --chip-hot: rgba(255,200,61,.14); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #07080F; --app: #0B0D1A; --surface: #151935; --fg: #F4F4F8; --muted: #A9AED0; --line: #262B4D;
+  --accent: #FFC83D; --accent-ink: #FFC83D;
+  --ig: #B98AFF; --yt: #FF5D5D; --tt: #2EE0F0;
+  --good: #34D17A; --bad: #FF5470; --warn: #FFB21A;
+  --chip-good: rgba(52,209,122,.14); --chip-bad: rgba(255,84,112,.14); --chip-hot: rgba(255,200,61,.14); color-scheme: dark }
+
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.45 }
+button { font: inherit; color: inherit; cursor: pointer }
+a { color: inherit }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.num { font-variant-numeric: tabular-nums }
+
+.app { max-width: 560px; min-height: 100vh; margin: 0 auto; background: var(--app); display: flex; flex-direction: column;
+  border-inline: 1px solid var(--line) }
+.top { position: sticky; top: 0; z-index: 4; background: var(--surface); border-bottom: 1px solid var(--line);
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap }
+.top b { font-family: var(--f-display); font-weight: 700; font-size: 16px }
+.top span { font-size: 12px; color: var(--muted) }
+.screen { flex: 1; padding: 16px max(14px, env(safe-area-inset-right, 0px)) 20px max(14px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 14px }
+.tabs { position: sticky; bottom: 0; z-index: 4; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); background: var(--surface);
+  padding: 6px 6px calc(8px + env(safe-area-inset-bottom, 0px)) }
+.tab { background: none; border: 0; padding: 8px 4px 4px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--muted); font-size: 12px; font-weight: 500 }
+.tab svg { width: 22px; height: 22px }
+.tab[aria-current="page"] { color: var(--fg) }
+.tab[aria-current="page"] svg { color: var(--accent-ink) }
+
+.head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap }
+.h1 { font-family: var(--f-display); font-weight: 700; font-size: 19px; letter-spacing: -.01em; margin: 0; text-wrap: balance }
+.h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 }
+
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px }
+.seg button { border: 0; background: none; border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 500; color: var(--muted) }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--app) }
+.seg.wide { display: grid; grid-template-columns: repeat(3, 1fr); width: 100% }
+.seg.wide button { display: flex; align-items: center; justify-content: center; gap: 6px; padding-inline: 6px }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; min-width: 0 }
+.card > .h2 { margin-bottom: 10px }
+
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0 }
+.kpi .lbl { font-size: 12px; color: var(--muted) }
+.kpi .val { font-family: var(--f-display); font-weight: 600; font-size: 21px; letter-spacing: -.02em }
+.kpi .sub { font-size: 12px; color: var(--muted) }
+.up { color: var(--good) } .down { color: var(--bad) }
+
+.dot { width: 9px; height: 9px; border-radius: 3px; display: inline-block; flex: none }
+.d-ig { background: var(--ig) } .d-yt { background: var(--yt) } .d-tt { background: var(--tt) }
+.s-ig { fill: var(--ig) } .s-yt { fill: var(--yt) } .s-tt { fill: var(--tt) }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 8px }
+.legend span { display: inline-flex; align-items: center; gap: 6px }
+svg text { fill: var(--muted); font-family: var(--f-ui); font-size: 10px }
+svg .grid { stroke: var(--line); stroke-width: 1 }
+
+.rows { display: flex; flex-direction: column }
+.row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); background: none; border-left: 0; border-right: 0; border-bottom: 0; text-align: left; width: 100%; text-decoration: none }
+.rows > .row:first-child { border-top: 0; padding-top: 2px }
+.row .t { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.row .m { font-size: 12px; color: var(--muted) }
+.row .r { text-align: right; font-weight: 600 }
+.bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; display: flex; margin-top: 6px }
+.bar > i { display: block; height: 100% }
+.epn, .pav { font-family: var(--f-display); font-weight: 600; font-size: 13px; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--app); border: 1px solid var(--line); flex: none }
+.pav { border-radius: 50% }
+.pav.main { background: var(--accent); border-color: var(--accent); color: var(--on-accent) }
+
+.proj { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 8px 14px 8px 8px; text-align: left }
+.proj b { display: block; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.proj .m { display: block; font-size: 12px; color: var(--muted) }
+.proj .chev { color: var(--muted); font-size: 13px }
+
+.chip { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 600; white-space: nowrap }
+.chip.hot { background: var(--chip-hot); color: var(--accent-ink) }
+.chip.good { background: var(--chip-good); color: var(--good) }
+.chip.bad { background: var(--chip-bad); color: var(--bad) }
+.chip.off { background: var(--app); color: var(--muted); border: 1px solid var(--line) }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px }
+
+.insight { display: grid; grid-template-columns: 4px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-top: 1px solid var(--line) }
+.insight:first-of-type { border-top: 0; padding-top: 0 }
+.insight .stripe { border-radius: 2px }
+.insight p { margin: 0; font-size: 14px }
+.insight small { color: var(--muted); font-size: 12px }
+
+.big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap }
+.big .val { font-family: var(--f-display); font-weight: 700; font-size: 30px; letter-spacing: -.02em }
+.stack { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin: 8px 0 6px; background: var(--line) }
+.stack > i { display: block; height: 100% }
+.note { font-size: 13px; color: var(--muted); margin: 0 }
+.link { font-size: 13px; font-weight: 600; color: var(--accent-ink); text-decoration: none }
+.link:hover { text-decoration: underline }
+
+.rank { display: flex; flex-direction: column; gap: 9px }
+.rank button { display: grid; grid-template-columns: 26px minmax(0, 1fr) 64px; align-items: center; gap: 8px; background: none; border: 0; padding: 0; text-align: left }
+.rank .lab { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums }
+.rank .track { position: relative; height: 22px; border-radius: 6px; background: var(--app) }
+.rank .fill { position: absolute; inset: 0 auto 0 0; border-radius: 6px }
+.rank .name { position: relative; z-index: 1; font-size: 12px; font-weight: 500; padding: 0 8px; line-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block }
+.rank .median { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed var(--fg); opacity: .5; z-index: 2 }
+.rank .v { text-align: right; font-size: 13px; font-weight: 600 }
+
+.sheet-wrap { position: fixed; inset: 0; background: rgba(8, 10, 22, .45); display: flex; align-items: flex-end; justify-content: center; z-index: 5; padding-bottom: env(safe-area-inset-bottom, 0px) }
+.sheet { width: 100%; max-width: 560px; max-height: 88%; overflow-y: auto; background: var(--app); border-radius: 22px 22px 0 0; padding: 10px 14px 20px; display: flex; flex-direction: column; gap: 12px }
+.grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 2px auto 4px }
+.sheet-head { display: flex; gap: 10px; align-items: flex-start }
+.sheet-head .x { margin-left: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 50%; width: 32px; height: 32px; flex: none }
+.tbl-wrap { overflow-x: auto }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums }
+th, td { padding: 7px 6px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap }
+th:first-child, td:first-child { text-align: left; color: var(--muted); font-weight: 500 }
+thead th { font-size: 12px; color: var(--muted); font-weight: 600 }
+.ret { display: grid; grid-template-columns: 74px minmax(0, 1fr) 40px; gap: 8px; align-items: center; font-size: 13px }
+.ret .track { height: 10px; border-radius: 5px; background: var(--line); position: relative; overflow: hidden }
+.ret .track i { position: absolute; inset: 0 auto 0 0; border-radius: 5px }
+
+@media (max-width: 560px) { .app { border-inline: 0 } }
+@media (prefers-reduced-motion: no-preference) {
+  .sheet { animation: rise .22s ease-out }
+  @keyframes rise { from { transform: translateY(24px); opacity: .6 } to { transform: none; opacity: 1 } }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top"><b>Статистика</b><span id="updated"></span></header>
+  <main class="screen" id="screen" aria-live="polite"></main>
+  <nav class="tabs" aria-label="Разделы">
+    <button class="tab" type="button" data-view="projects">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Проекты</button>
+    <button class="tab" type="button" data-view="summary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19V10M10 19V5M16 19v-6M22 19H2"/></svg>Сводка</button>
+    <button class="tab" type="button" data-view="channels">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="14" rx="3"/><path d="M8 21h8"/></svg>Площадки</button>
+    <button class="tab" type="button" data-view="series">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Серии</button>
+  </nav>
+</div>
+<div id="sheet-root"></div>
+
+<script>
+// The Desktop copy has the data inlined. The published copy (GitHub Pages) has none: it fetches data.json,
+// which build.mjs encrypted with the password (AES-GCM, key from PBKDF2), and decrypts it here.
+const DATA = /*DATA*/null;
+function start(DATA) {
+  const PLAT = [
+    { id: 'ig', name: 'Instagram', short: 'IG' },
+    { id: 'yt', name: 'YouTube', short: 'YT' },
+    { id: 'tt', name: 'TikTok', short: 'TT' },
+  ];
+  const HOT = 2.5;        // «Взлёт»: views at least 2.5× the channel's median episode
+  const HOT_MIN = 300;    // …and enough views for that to mean something
+  const CONNECT = { ig: '«инста готова»', yt: '«ютуб готов»', tt: '«тикток готов»' };
+
+  const median = (a) => { const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+  const fmt = (n) => n == null ? '—' : Math.round(n).toLocaleString('ru-RU');
+  const short = (n) => n == null ? '—' : n >= 1000 ? (n / 1000).toLocaleString('ru-RU', { maximumFractionDigits: n >= 10000 ? 0 : 1 }) + ' тыс' : String(Math.round(n));
+  const pct = (n) => n == null || !isFinite(n) ? '—' : n.toLocaleString('ru-RU', { maximumFractionDigits: 1 }) + '%';
+  const fx = (n) => n.toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+  const plural = (n, f) => f[n % 10 === 1 && n % 100 !== 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2];
+  const series = (n) => `${n} ${plural(n, ['серия', 'серии', 'серий'])}`;
+  const ddmm = (iso) => iso ? `${iso.slice(8, 10)}.${iso.slice(5, 7)}` : '—';
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const signed = (n) => `${n > 0 ? '+' : n < 0 ? '−' : '+'}${fmt(Math.abs(n))}`;
+
+  // ---------- data ----------
+  const PROJECTS = DATA.projects;
+  const TODAY = PROJECTS.flatMap((p) => p.dates).sort().at(-1) || new Date().toISOString().slice(0, 10);
+  const WEEK = new Date(Date.parse(TODAY + 'T00:00:00Z') - 6 * 864e5).toISOString().slice(0, 10);
+  PROJECTS.forEach((pr, i) => {
+    pr.n = i + 1;
+    pr.on = PLAT.filter((p) => pr.account[p.id]);
+    pr.med = {}; pr.cnt = {};
+    for (const p of PLAT) {
+      const vs = pr.eps.map((e) => e.stat[p.id]?.views).filter((v) => v != null);
+      pr.cnt[p.id] = vs.length;
+      pr.med[p.id] = vs.length ? median(vs) : null;
+    }
+  });
+  const total = (e) => PLAT.reduce((s, p) => s + (e.stat[p.id]?.views ?? 0), 0);
+  const reacts = (s) => (s.likes ?? 0) + (s.comments ?? 0) + (s.shares ?? 0);
+  const ratioOf = (e, pid, pr) => { const s = e.stat[pid], m = pr.med[pid]; return s && m && pr.cnt[pid] >= 3 ? s.views / m : null; };
+  const isHot = (e, pid, pr = P) => { const r = ratioOf(e, pid, pr); return r != null && r >= HOT && e.stat[pid].views >= HOT_MIN; };
+  const bestPlat = (e, pr = P) => PLAT.map((p) => ({ p, ratio: ratioOf(e, p.id, pr) })).filter((x) => x.ratio != null).sort((a, b) => b.ratio - a.ratio)[0] || null;
+  const followersOf = (pr) => pr.on.reduce((s, p) => s + pr.account[p.id].followers, 0);
+  const deltaOf = (pr) => pr.on.reduce((s, p) => s + pr.account[p.id].delta, 0);
+  const firstDate = () => PROJECTS.flatMap((p) => p.dates).sort()[0];
+
+  let P = PROJECTS[0];
+  let state = { view: 'projects', period: '7', channel: 'ig', sort: 'num', detail: null, picker: false };
+  try {
+    const saved = JSON.parse(localStorage.getItem('studio-stats') || '{}');
+    if (saved.period) state.period = saved.period;
+    if (saved.channel) state.channel = saved.channel;
+    if (saved.sort) state.sort = saved.sort;
+    P = PROJECTS.find((x) => x.slug === saved.project) || P;
+  } catch (_) {}
+  const remember = () => { try { localStorage.setItem('studio-stats', JSON.stringify({ period: state.period, channel: state.channel, sort: state.sort, project: P.slug })); } catch (_) {} };
+  const setProject = (slug) => { P = PROJECTS.find((x) => x.slug === slug) || P; remember(); };
+
+  const $screen = document.getElementById('screen');
+  const $sheet = document.getElementById('sheet-root');
+  const inPeriod = (pr) => pr.daily.filter((d) => state.period === 'all' || d.date >= WEEK);
+  const sumViews = (pr) => { const s = { ig: 0, yt: 0, tt: 0 }; inPeriod(pr).forEach((d) => PLAT.forEach((p) => s[p.id] += d[p.id])); return s; };
+  const periodLabel = (pr) => state.period === '7' ? 'за 7 дней' : `с ${ddmm(pr ? pr.dates[0] : firstDate())}`;
+  const periodSeg = () => `<div class="seg" role="group" aria-label="Период">
+      <button type="button" data-period="7" aria-pressed="${state.period === '7'}">7 дней</button>
+      <button type="button" data-period="all" aria-pressed="${state.period === 'all'}">Всё время</button></div>`;
+  const avatar = (pr) => `<span class="pav${pr.n === 1 ? ' main' : ''}">${pr.n}</span>`;
+  const onChips = (pr) => PLAT.map((p) => pr.account[p.id] ? `<span class="chip" style="padding-inline:0"><i class="dot d-${p.id}"></i>${p.short}</span>` : '').join(' ');
+  const projBar = () => `<button class="proj" type="button" data-pick="1">${avatar(P)}
+      <span style="min-width:0"><b>${esc(P.name)}</b><span class="m">${series(P.eps.length)} · ${PROJECTS.length > 1 ? 'сменить проект' : 'единственный проект'}</span></span><span class="chev" aria-hidden="true">▾</span></button>`;
+  const legend = (plats = PLAT) => `<div class="legend">${plats.map((p) => `<span><i class="dot d-${p.id}"></i>${p.name}</span>`).join('')}</div>`;
+  const hotChips = (e) => PLAT.filter((p) => isHot(e, p.id)).map((p) => `<span class="chip hot">Взлёт · ${p.short}</span>`).join('');
+  const splitBar = (s, width = 100) => { const t = s.ig + s.yt + s.tt; return `<div class="bar" style="width:${Math.max(width, 2).toFixed(1)}%">${t ? PLAT.map((p) => `<i class="d-${p.id}" style="width:${(s[p.id] / t * 100).toFixed(1)}%"></i>`).join('') : ''}</div>`; };
+  const empty = (text) => `<section class="card"><p class="note">${text}</p></section>`;
+
+  // ---------- chart ----------
+  function niceStep(raw) { if (raw <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(raw))); for (const m of [1, 2, 2.5, 5, 10]) if (raw <= m * p) return m * p; return 10 * p; }
+  function dailyChart(rows, plats) {
+    const W = 340, H = 168, L = 48, R = 6, T = 8, B = 22;
+    const max = Math.max(1, ...rows.map((r) => plats.reduce((s, p) => s + r[p.id], 0)));
+    const step = niceStep(max / 3), top = Math.ceil(max / step) * step;
+    const y = (v) => T + (H - T - B) * (1 - v / top);
+    const bw = (W - L - R) / Math.max(rows.length, 7);
+    let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Просмотры по дням, стопкой по площадкам">`;
+    for (let g = 0; g <= top; g += step) s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(g)}" y2="${y(g)}"/><text x="${L - 6}" y="${y(g) + 3}" text-anchor="end">${g ? short(g) : '0'}</text>`;
+    rows.forEach((r, i) => {
+      let acc = 0;
+      const x = L + i * bw + bw * 0.18, w = bw * 0.64;
+      for (const p of plats) {
+        const v = r[p.id];
+        if (!v) continue;
+        s += `<rect class="s-${p.id}" x="${x.toFixed(1)}" y="${y(acc + v).toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(1, y(acc) - y(acc + v)).toFixed(1)}" rx="1.5"><title>${ddmm(r.date)} · ${p.name}: ${fmt(v)}</title></rect>`;
+        acc += v;
+      }
+      if (rows.length <= 10 || i % 2 === 0) s += `<text x="${(x + w / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${ddmm(r.date)}</text>`;
+    });
+    return s + '</svg>';
+  }
+
+  // ---------- screens ----------
+  function viewProjects() {
+    const rows = PROJECTS.map((pr) => {
+      const s = sumViews(pr);
+      return { pr, s, views: s.ig + s.yt + s.tt, hot: pr.eps.filter((e) => PLAT.some((p) => isHot(e, p.id, pr))).length };
+    }).sort((a, b) => b.views - a.views);
+    const views = rows.reduce((s, r) => s + r.views, 0);
+    const hot = rows.reduce((s, r) => s + r.hot, 0);
+    const channels = PROJECTS.reduce((s, pr) => s + pr.on.length, 0);
+    const byPlat = Object.fromEntries(PLAT.map((p) => [p.id, rows.reduce((s, r) => s + r.s[p.id], 0)]));
+    // Projects differ in size, so the best episodes are compared by their multiple of the channel's own median.
+    const top = PROJECTS.flatMap((pr) => pr.eps.map((e) => ({ pr, e, best: bestPlat(e, pr) }))).filter((x) => x.best && x.best.ratio > 1)
+      .sort((a, b) => b.best.ratio - a.best.ratio).slice(0, 5);
+    return `<div class="head"><h1 class="h1">Проекты</h1>${periodSeg()}</div>
+      <div class="kpis">
+        <div class="kpi"><span class="lbl">Просмотры</span><span class="val num">${short(views)}</span><span class="sub">${periodLabel()}</span></div>
+        <div class="kpi"><span class="lbl">Подписчики</span><span class="val num">${fmt(PROJECTS.reduce((s, pr) => s + followersOf(pr), 0))}</span><span class="sub up num">${signed(PROJECTS.reduce((s, pr) => s + deltaOf(pr), 0))} за 7 дней</span></div>
+        <div class="kpi"><span class="lbl">Проекты</span><span class="val num">${PROJECTS.length}</span><span class="sub">${channels} из ${PROJECTS.length * 3} каналов подключено</span></div>
+        <div class="kpi"><span class="lbl">Взлёты</span><span class="val num">${hot}</span><span class="sub">серий выше медианы ×2,5</span></div>
+      </div>
+      <section class="card"><h2 class="h2">По проектам</h2><div class="rows">
+        ${rows.map((r) => `<button class="row" type="button" data-proj="${r.pr.slug}">${avatar(r.pr)}
+          <div style="min-width:0"><div class="t">${esc(r.pr.name)}</div>${splitBar(r.s, rows[0].views ? r.views / rows[0].views * 100 : 2)}
+            <div class="chips">${onChips(r.pr)}${r.hot ? `<span class="chip hot">Взлёт · ${series(r.hot)}</span>` : ''}</div></div>
+          <div class="r num">${short(r.views)}<div class="m ${deltaOf(r.pr) >= 0 ? 'up' : 'down'}">${signed(deltaOf(r.pr))} подп.</div></div></button>`).join('')}
+      </div>${legend()}</section>
+      <section class="card"><h2 class="h2">Лучшие серии</h2>${top.length ? `<div class="rows">
+        ${top.map((x) => `<button class="row" type="button" data-proj="${x.pr.slug}" data-ep="${x.e.ep}"><span class="epn">${Number(x.e.ep)}</span>
+          <div style="min-width:0"><div class="t">${esc(x.e.title)}</div><div class="m">${esc(x.pr.name)} · ${x.best.p.name}</div></div>
+          <div class="r num">×${fx(x.best.ratio)}<div class="m">к медиане</div></div></button>`).join('')}
+      </div><p class="note" style="margin-top:8px">Проекты разного размера, поэтому серии сравниваются не по просмотрам, а по тому, во сколько раз они обогнали медиану своего канала.</p>`
+      : '<p class="note">Здесь появятся серии, которые обогнали медиану своего канала (считается, когда у канала выйдет хотя бы три серии).</p>'}</section>
+      <section class="card"><h2 class="h2">Площадки во всех проектах</h2>
+        <div class="stack">${views ? PLAT.map((p) => `<i class="d-${p.id}" style="width:${(byPlat[p.id] / views * 100).toFixed(1)}%"></i>`).join('') : ''}</div>
+        <div class="rows">${PLAT.map((p) => `<div class="row"><i class="dot d-${p.id}"></i><div class="t">${p.name}</div>
+          <div class="r num">${short(byPlat[p.id])}<div class="m">${views ? Math.round(byPlat[p.id] / views * 100) : 0}%</div></div></div>`).join('')}</div>
+      </section>`;
+  }
+
+  function insights() {
+    const eps = P.eps.filter((e) => total(e) > 0);
+    const out = [];
+    const best = eps.length ? eps.reduce((b, e) => total(e) > total(b) ? e : b) : null;
+    if (eps.length >= 2) {
+      const medTotal = median(eps.map(total));
+      out.push(['var(--accent)', `«${esc(best.title)}»: ${short(total(best))} просмотров${medTotal ? `, ×${fx(total(best) / medTotal)} к медиане проекта` : ''}. Такой формат стоит повторить.`, `серия ${Number(best.ep)} · все площадки`]);
+    }
+    const ig = eps.filter((e) => e.stat.ig && e.stat.ig.views >= 200 && e.stat.ig.saves != null);
+    if (ig.length >= 2) {
+      const rate = (e) => e.stat.ig.saves / e.stat.ig.views;
+      const avg = ig.reduce((s, e) => s + e.stat.ig.saves, 0) / ig.reduce((s, e) => s + e.stat.ig.views, 0);
+      const saver = ig.reduce((b, e) => rate(e) > rate(b) ? e : b);
+      if (avg > 0 && rate(saver) / avg >= 1.2) out.push(['var(--good)', `«${esc(saver.title)}» сохраняют в Instagram в ${fx(rate(saver) / avg)} раза чаще среднего: к таким советам возвращаются.`, `серия ${Number(saver.ep)} · ${fmt(saver.stat.ig.saves)} сохранений`]);
+    }
+    // The weakest hold among the rest (the leader is not called weak), when it is clearly below the average.
+    const ret = eps.filter((e) => e.stat.ig?.ret != null && e.stat.ig.views >= 200);
+    const avgRet = ret.length ? ret.reduce((s, e) => s + e.stat.ig.ret, 0) / ret.length : 0;
+    const weak = ret.filter((e) => e !== best).sort((a, b) => a.stat.ig.ret - b.stat.ig.ret)[0];
+    if (ret.length >= 3 && weak && weak.stat.ig.ret <= avgRet - 5) {
+      out.push(['var(--bad)', `«${esc(weak.title)}» досматривают реже всех. Стоит проверить первые две секунды.`, `серия ${Number(weak.ep)} · досмотр в Instagram ${pct(weak.stat.ig.ret)}`]);
+    }
+    const views = eps.reduce((s, e) => s + total(e), 0), fol = followersOf(P);
+    if (views >= 1000) out.push(['var(--warn)', `На 1000 просмотров приходит ${fx(fol / views * 1000)} подписчика. Призыв подписаться в конце серии и закреплённый пост с плейлистом поднимают эту цифру.`, `${fmt(fol)} подписчиков на ${short(views)} просмотров`]);
+    if (!out.length) return '<p class="note">Наблюдения появятся, когда у серий наберутся просмотры.</p>';
+    return out.map(([c, t, s]) => `<div class="insight"><i class="stripe" style="background:${c}"></i><div><p>${t}</p><small>${s}</small></div></div>`).join('');
+  }
+
+  function viewSummary() {
+    if (!P.dates.length) return `${projBar()}${empty('Статистики пока нет: она появится после первого сбора.')}`;
+    const sum = sumViews(P), views = sum.ig + sum.yt + sum.tt;
+    const st = P.eps.flatMap((e) => PLAT.map((p) => e.stat[p.id]).filter(Boolean));
+    const seen = st.reduce((s, x) => s + x.views, 0);
+    const erAll = seen ? st.reduce((s, x) => s + reacts(x), 0) / seen * 100 : null;
+    const rets = P.eps.flatMap((e) => [e.stat.ig?.ret, e.stat.yt?.ret]).filter((x) => x != null);
+    const ret = rets.length ? rets.reduce((s, x) => s + x, 0) / rets.length : null;
+    const hot = P.eps.filter((e) => PLAT.some((p) => isHot(e, p.id)));
+    const days = inPeriod(P);
+    // Collection began after the first episodes were out: the first day with views holds everything before it.
+    const first = P.daily.find((d) => d.ig + d.yt + d.tt > 0);
+    const firstIn = first && days.includes(first);
+    return `${projBar()}
+      <div class="head"><h1 class="h1">Сводка</h1>${periodSeg()}</div>
+      <div class="kpis">
+        <div class="kpi"><span class="lbl">Просмотры</span><span class="val num">${short(views)}</span><span class="sub">${periodLabel(P)}</span></div>
+        <div class="kpi"><span class="lbl">Подписчики</span><span class="val num">${fmt(followersOf(P))}</span><span class="sub ${deltaOf(P) >= 0 ? 'up' : 'down'} num">${signed(deltaOf(P))} за 7 дней</span></div>
+        <div class="kpi"><span class="lbl">Реакции на просмотр</span><span class="val num">${pct(erAll)}</span><span class="sub">лайки, комментарии, репосты</span></div>
+        <div class="kpi"><span class="lbl">Средний досмотр</span><span class="val num">${pct(ret)}</span><span class="sub">Instagram и YouTube</span></div>
+      </div>
+      <section class="card"><h2 class="h2">Просмотры по дням</h2>${dailyChart(days, P.on)}${legend(P.on)}
+        ${firstIn ? `<p class="note" style="margin-top:8px">${ddmm(first.date)} — первый день, когда собирались просмотры серий: в него вошли и все просмотры до него.</p>` : ''}</section>
+      <section class="card"><h2 class="h2">По площадкам</h2><div class="rows">
+        ${PLAT.map((p) => P.account[p.id] ? `<button class="row" type="button" data-channel="${p.id}">
+          <i class="dot d-${p.id}"></i>
+          <div style="min-width:0"><div class="t">${p.name}</div>
+            <div class="bar"><i class="d-${p.id}" style="width:${views ? (sum[p.id] / views * 100).toFixed(1) : 0}%"></i></div></div>
+          <div class="r num">${short(sum[p.id])}<div class="m">${views ? Math.round(sum[p.id] / views * 100) : 0}%</div></div></button>`
+          : `<button class="row" type="button" data-channel="${p.id}"><i class="dot d-${p.id}" style="opacity:.35"></i>
+          <div style="min-width:0"><div class="t">${p.name}</div><div class="m">не подключён</div></div><div class="r m">—</div></button>`).join('')}
+      </div></section>
+      <section class="card"><h2 class="h2">Взлетели</h2>${hot.length ? `<div class="rows">
+        ${hot.map((e) => `<button class="row" type="button" data-ep="${e.ep}"><span class="epn">${Number(e.ep)}</span>
+          <div style="min-width:0"><div class="t">${esc(e.title)}</div><div class="chips">${hotChips(e)}</div></div>
+          <div class="r num">${short(total(e))}</div></button>`).join('')}
+      </div>` : '<p class="note">Пока ни одна серия не обогнала медиану канала в 2,5 раза.</p>'}</section>
+      <section class="card"><h2 class="h2">Наблюдения</h2>${insights()}</section>`;
+  }
+
+  function viewChannels() {
+    const p = PLAT.find((x) => x.id === state.channel) || PLAT[0];
+    const a = P.account[p.id];
+    const seg = `<div class="seg wide" role="group" aria-label="Площадка">
+        ${PLAT.map((x) => `<button type="button" data-channel="${x.id}" aria-pressed="${x.id === p.id}"><i class="dot d-${x.id}"${P.account[x.id] ? '' : ' style="opacity:.35"'}></i>${x.name}</button>`).join('')}
+      </div>`;
+    if (!a) return `${projBar()}<h1 class="h1">Площадки</h1>${seg}
+      ${empty(`${p.name} у проекта «${esc(P.name)}» ещё не подключён${P.handles[p.id] ? ` (${esc(P.handles[p.id])})` : ''}. Когда аккаунт будет готов, напишите Claude ${CONNECT[p.id]}, и он появится здесь со следующего сбора.`)}`;
+    const eps = P.eps.filter((e) => e.stat[p.id]);
+    const views = eps.reduce((s, e) => s + e.stat[p.id].views, 0);
+    const rets = eps.map((e) => e.stat[p.id].ret).filter((x) => x != null);
+    const ret = rets.length ? rets.reduce((s, x) => s + x, 0) / rets.length : null;
+    const erp = views ? eps.reduce((s, e) => s + reacts(e.stat[p.id]), 0) / views * 100 : null;
+    const ranked = [...eps].sort((x, y) => y.stat[p.id].views - x.stat[p.id].views);
+    const max = Math.max(1, ranked[0]?.stat[p.id].views ?? 1);
+    const med = P.med[p.id];
+    let extra = '';
+    if (p.id === 'ig' && a.nonFollower != null) extra = `<section class="card"><h2 class="h2">Кто смотрит</h2>
+      <div class="big"><span class="val num">${pct(a.nonFollower)}</span><span class="note">охвата приходится на неподписчиков</span></div>
+      <div class="stack"><i class="d-ig" style="width:${a.nonFollower}%"></i></div>
+      <p class="note">Чем выше доля, тем чаще Instagram показывает ролики в рекомендациях. Считается по аккаунту за 7 дней.</p></section>`;
+    if (p.id === 'yt') extra = `<section class="card"><h2 class="h2">Откуда приходят</h2>${P.ytSources.length ? `
+      <div class="stack">${P.ytSources.map((s, i) => `<i style="width:${s[1]}%;background:var(--yt);opacity:${1 - i * 0.22}"></i>`).join('')}</div>
+      <div class="rows">${P.ytSources.map((s, i) => `<div class="row"><i class="dot" style="background:var(--yt);opacity:${1 - i * 0.22}"></i><div class="t">${s[0]}</div><div class="r num">${s[1]}%</div></div>`).join('')}</div>`
+      : '<p class="note">YouTube Analytics отдаёт источники с задержкой в 1–2 дня после выхода серии.</p>'}</section>`;
+    if (p.id === 'tt') extra = `<section class="card"><h2 class="h2">Ограничения TikTok</h2>
+      <p class="note">TikTok отдаёт только публичные ролики и только просмотры, лайки, комментарии и репосты. Досмотр и источники трафика видны в TikTok Studio.</p></section>`;
+    return `${projBar()}<h1 class="h1">Площадки</h1>${seg}
+      <section class="card"><div class="big"><span class="val num">${fmt(a.followers)}</span><span class="note">подписчиков · <span class="${a.delta >= 0 ? 'up' : 'down'} num">${signed(a.delta)}</span> с ${ddmm(a.since)}</span></div>
+        <div class="chips" style="margin-top:8px"><a class="link" href="${esc(a.url)}" target="_blank" rel="noopener">Открыть ${esc(P.handles[p.id] || p.name)} ↗</a>${a.date < TODAY ? `<span class="chip bad">данные за ${ddmm(a.date)}</span>` : ''}</div></section>
+      <div class="kpis">
+        <div class="kpi"><span class="lbl">Просмотры</span><span class="val num">${short(views)}</span><span class="sub">${series(eps.length)}, всё время</span></div>
+        <div class="kpi"><span class="lbl">Медиана серии</span><span class="val num">${short(med)}</span><span class="sub">${P.cnt[p.id] >= 3 ? 'от неё считается «Взлёт»' : '«Взлёт» — от трёх серий'}</span></div>
+        <div class="kpi"><span class="lbl">Средний досмотр</span><span class="val num">${pct(ret)}</span><span class="sub">${p.id === 'tt' ? 'нет в API' : ret == null ? 'появится позже' : 'доля ролика'}</span></div>
+        <div class="kpi"><span class="lbl">Реакции на просмотр</span><span class="val num">${pct(erp)}</span><span class="sub">лайки, комм., репосты</span></div>
+      </div>
+      <section class="card"><h2 class="h2">Серии по просмотрам</h2>${ranked.length ? `
+        <div class="rank">${ranked.map((e) => { const v = e.stat[p.id].views; return `<button type="button" data-ep="${e.ep}">
+          <span class="lab">${Number(e.ep)}</span>
+          <span class="track"><i class="fill d-${p.id}" style="width:${(v / max * 100).toFixed(1)}%;opacity:${isHot(e, p.id) ? 1 : .45}"></i>
+            ${med != null && P.cnt[p.id] >= 3 ? `<i class="median" style="left:${(med / max * 100).toFixed(1)}%"></i>` : ''}<span class="name">${esc(e.title)}</span></span>
+          <span class="v num">${short(v)}</span></button>`; }).join('')}</div>
+        <p class="note" style="margin-top:10px">Пунктир — медиана канала. Яркие полосы — серии со статусом «Взлёт».</p>`
+        : '<p class="note">Серий с цифрами пока нет.</p>'}
+      </section>
+      ${extra}`;
+  }
+
+  function viewSeries() {
+    const list = [...P.eps];
+    if (state.sort === 'views') list.sort((a, b) => total(b) - total(a));
+    return `${projBar()}
+      <div class="head"><h1 class="h1">Серии</h1>
+        <div class="seg" role="group" aria-label="Сортировка">
+          <button type="button" data-sort="num" aria-pressed="${state.sort === 'num'}">По номеру</button>
+          <button type="button" data-sort="views" aria-pressed="${state.sort === 'views'}">По просмотрам</button>
+        </div></div>
+      ${list.length ? `<section class="card"><div class="rows">
+        ${list.map((e) => { const t = total(e); return `<button class="row" type="button" data-ep="${e.ep}"><span class="epn">${Number(e.ep)}</span>
+          <div style="min-width:0"><div class="t">${esc(e.title)}</div><div class="m">вышла ${ddmm(e.published)}</div>
+            <div class="bar">${t ? PLAT.map((p) => `<i class="d-${p.id}" style="width:${((e.stat[p.id]?.views ?? 0) / t * 100).toFixed(1)}%"></i>`).join('') : ''}</div>
+            ${hotChips(e) ? `<div class="chips">${hotChips(e)}</div>` : ''}</div>
+          <div class="r num">${short(t)}</div></button>`; }).join('')}
+      </div>${legend(P.on)}</section>` : empty('Вышедших серий с цифрами пока нет.')}`;
+  }
+
+  function sheet(ep) {
+    const e = P.eps.find((x) => x.ep === ep);
+    if (!e) return '';
+    const plats = PLAT.filter((p) => P.account[p.id]);
+    const row = (label, f) => `<tr><td>${label}</td>${plats.map((p) => `<td>${e.stat[p.id] ? f(e.stat[p.id], p) : '—'}</td>`).join('')}</tr>`;
+    const best = bestPlat(e);
+    const verdict = !best ? '' : best.ratio >= HOT && e.stat[best.p.id].views >= HOT_MIN ? `<span class="chip hot">Взлёт в ${best.p.name}: ×${fx(best.ratio)} к медиане</span>`
+      : best.ratio >= 1 ? `<span class="chip good">Выше медианы в ${best.p.name}</span>` : `<span class="chip bad">Ниже медианы на всех площадках</span>`;
+    return `<div class="sheet-wrap" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="grab"></div>
+      <div class="sheet-head"><span class="epn">${Number(e.ep)}</span><div style="min-width:0"><h2 class="h1" id="sheet-title" style="font-size:17px">${esc(e.title)}</h2><div class="m" style="color:var(--muted);font-size:12px">${esc(P.name)} · вышла ${ddmm(e.published)} · ${short(total(e))} просмотров всего</div></div>
+        <button class="x" type="button" data-close="1" aria-label="Закрыть карточку">✕</button></div>
+      ${verdict ? `<div>${verdict}</div>` : ''}
+      <section class="card"><div class="tbl-wrap"><table>
+        <thead><tr><th></th>${plats.map((p) => `<th><i class="dot d-${p.id}"></i> ${p.short}</th>`).join('')}</tr></thead>
+        <tbody>
+          ${row('Просмотры', (s) => fmt(s.views))}
+          ${row('К медиане', (s, p) => { const r = ratioOf(e, p.id, P); return r == null ? '—' : '×' + fx(r); })}
+          ${row('Лайки', (s) => fmt(s.likes))}
+          ${row('Комментарии', (s) => fmt(s.comments))}
+          ${row('Репосты', (s) => fmt(s.shares))}
+          ${row('Сохранения', (s) => fmt(s.saves))}
+          ${row('Реакции', (s) => s.views ? pct(reacts(s) / s.views * 100) : '—')}
+          ${row('Ролик', (s) => s.url ? `<a class="link" href="${esc(s.url)}" target="_blank" rel="noopener">открыть ↗</a>` : '—')}
+        </tbody></table></div></section>
+      <section class="card"><h2 class="h2">Досмотр</h2><div class="rows" style="gap:10px">
+        ${plats.map((p) => { const r = e.stat[p.id]?.ret; return `<div class="ret"><span>${p.name}</span><span class="track">${r == null ? '' : `<i class="d-${p.id}" style="width:${Math.min(r, 100)}%"></i>`}</span><span class="num">${r == null ? '—' : pct(r)}</span></div>`; }).join('')}
+      </div><p class="note" style="margin-top:8px">Средняя доля ролика, которую смотрят. TikTok эту цифру не отдаёт, YouTube — через 1–2 дня после выхода.</p></section>
+    </div></div>`;
+  }
+
+  function picker() {
+    return `<div class="sheet-wrap" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pick-title">
+      <div class="grab"></div>
+      <div class="sheet-head"><h2 class="h1" id="pick-title" style="font-size:17px">Проект</h2>
+        <button class="x" type="button" data-close="1" aria-label="Закрыть выбор проекта">✕</button></div>
+      <section class="card"><div class="rows">
+        ${PROJECTS.map((pr) => `<button class="row" type="button" data-proj="${pr.slug}" aria-pressed="${pr === P}">${avatar(pr)}
+          <div style="min-width:0"><div class="t">${esc(pr.name)}</div><div class="m">${series(pr.eps.length)} · ${fmt(followersOf(pr))} подписчиков</div></div>
+          <div class="r">${pr === P ? '✓' : ''}</div></button>`).join('')}
+      </div></section>
+    </div></div>`;
+  }
+
+  // ---------- render + events ----------
+  function render() {
+    const views = { projects: viewProjects, summary: viewSummary, channels: viewChannels, series: viewSeries };
+    $screen.innerHTML = views[state.view]();
+    document.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-current', b.dataset.view === state.view ? 'page' : 'false'));
+    $sheet.innerHTML = state.picker ? picker() : state.detail ? sheet(state.detail) : '';
+  }
+  function go(view) {
+    state.view = view; state.detail = null; state.picker = false;
+    window.scrollTo(0, 0);
+    if (location.hash.slice(1) !== view) history.replaceState(null, '', '#' + view);
+    render();
+  }
+
+  document.addEventListener('click', (ev) => {
+    const t = ev.target.closest('button, .sheet-wrap');
+    if (!t) return;
+    if (t.dataset.close && (t === ev.target || t.tagName === 'BUTTON')) { state.detail = null; state.picker = false; render(); return; }
+    if (t.dataset.view) return go(t.dataset.view);
+    if (t.dataset.pick) { state.picker = true; return render(); }
+    if (t.dataset.proj) {
+      setProject(t.dataset.proj);
+      state.picker = false;
+      if (t.dataset.ep) { state.detail = t.dataset.ep; return render(); }
+      if (state.view === 'projects') return go('summary');
+      window.scrollTo(0, 0);
+      return render();
+    }
+    if (t.dataset.period) { state.period = t.dataset.period; remember(); return render(); }
+    if (t.dataset.sort) { state.sort = t.dataset.sort; remember(); return render(); }
+    if (t.dataset.channel) { state.channel = t.dataset.channel; remember(); if (state.view !== 'channels') return go('channels'); return render(); }
+    if (t.dataset.ep) { state.detail = t.dataset.ep; return render(); }
+  });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && (state.detail || state.picker)) { state.detail = null; state.picker = false; render(); } });
+
+  // The file is rebuilt after every collection; a tab left open reloads itself when you come back to it.
+  const loaded = Date.now();
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - loaded > 20 * 60e3) location.reload(); });
+  const g = new Date(DATA.generated);
+  document.getElementById('updated').textContent = `обновлено ${g.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })} в ${g.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+
+  const fromHash = () => { const h = location.hash.slice(1); return ['projects', 'summary', 'channels', 'series'].includes(h) ? h : 'projects'; };
+  window.addEventListener('hashchange', () => { const v = fromHash(); if (v !== state.view) go(v); });
+  state.view = fromHash();
+  render();
+}
+
+// ---------- published copy: password → data ----------
+const PW_KEY = 'studio-stats-pw';
+const bytes = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+async function decrypt(box, pw) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: bytes(box.salt), iterations: box.iter, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes(box.iv) }, key, bytes(box.data))));
+}
+async function unlock() {
+  const $screen = document.getElementById('screen'), tabs = document.querySelector('.tabs');
+  tabs.hidden = true;
+  let box;
+  try {
+    const r = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    box = await r.json();
+  } catch (_) {
+    $screen.innerHTML = '<section class="card"><p class="note">Не удалось загрузить статистику. Проверьте интернет и обновите страницу.</p></section>';
+    return;
+  }
+  const open = async (pw) => {
+    let data;
+    try { data = await decrypt(box, pw); } catch (_) { return false; }
+    try { localStorage.setItem(PW_KEY, pw); } catch (_) {}
+    tabs.hidden = false;
+    start(data);
+    return true;
+  };
+  let saved = null;
+  try { saved = localStorage.getItem(PW_KEY); } catch (_) {}
+  if (saved && await open(saved)) return;
+  $screen.innerHTML = `<section class="card"><form id="login" style="display:flex;flex-direction:column;gap:12px">
+      <h1 class="h1">Вход</h1>
+      <p class="note">Статистика зашифрована. Введите пароль — это устройство его запомнит.</p>
+      <input id="pw" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" aria-label="Пароль" required
+        style="font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--app);color:var(--fg)">
+      <button type="submit" style="padding:12px;border:0;border-radius:12px;background:var(--accent);color:var(--on-accent);font-weight:600">Открыть</button>
+      <p class="note down" id="pw-err" hidden>Пароль не подошёл.</p>
+    </form></section>`;
+  document.getElementById('pw').focus();
+  document.getElementById('login').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const pw = document.getElementById('pw').value.trim();
+    if (!(await open(pw))) document.getElementById('pw-err').hidden = false;
+  });
+}
+if (DATA) start(DATA); else unlock();
+</script>
+</body>
+</html>
