@@ -209,7 +209,9 @@ function start(DATA) {
   const series = (n) => `${n} ${plural(n, ['серия', 'серии', 'серий'])}`;
   const ddmm = (iso) => iso ? `${iso.slice(8, 10)}.${iso.slice(5, 7)}` : '—';
   const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const signed = (n) => `${n > 0 ? '+' : n < 0 ? '−' : '+'}${fmt(Math.abs(n))}`;
+  // Specials are stored as 100 + k (Routik's «Спецвыпуск №k»).
+  const epNo = (ep) => Number(ep) > 100 ? `СП${Number(ep) - 100}` : Number(ep);
+  const signed = (n) =>`${n > 0 ? '+' : n < 0 ? '−' : '+'}${fmt(Math.abs(n))}`;
 
   // ---------- data ----------
   const PROJECTS = DATA.projects;
@@ -314,7 +316,7 @@ function start(DATA) {
           <div class="r num">${short(r.views)}<div class="m ${deltaOf(r.pr) >= 0 ? 'up' : 'down'}">${signed(deltaOf(r.pr))} подп.</div></div></button>`).join('')}
       </div>${legend()}</section>
       <section class="card"><h2 class="h2">Лучшие серии</h2>${top.length ? `<div class="rows">
-        ${top.map((x) => `<button class="row" type="button" data-proj="${x.pr.slug}" data-ep="${x.e.ep}"><span class="epn">${Number(x.e.ep)}</span>
+        ${top.map((x) => `<button class="row" type="button" data-proj="${x.pr.slug}" data-ep="${x.e.ep}"><span class="epn">${epNo(x.e.ep)}</span>
           <div style="min-width:0"><div class="t">${esc(x.e.title)}</div><div class="m">${esc(x.pr.name)} · ${x.best.p.name}</div></div>
           <div class="r num">×${fx(x.best.ratio)}<div class="m">к медиане</div></div></button>`).join('')}
       </div><p class="note" style="margin-top:8px">Проекты разного размера, поэтому серии сравниваются не по просмотрам, а по тому, во сколько раз они обогнали медиану своего канала.</p>`
@@ -332,21 +334,21 @@ function start(DATA) {
     const best = eps.length ? eps.reduce((b, e) => total(e) > total(b) ? e : b) : null;
     if (eps.length >= 2) {
       const medTotal = median(eps.map(total));
-      out.push(['var(--accent)', `«${esc(best.title)}»: ${short(total(best))} просмотров${medTotal ? `, ×${fx(total(best) / medTotal)} к медиане проекта` : ''}. Такой формат стоит повторить.`, `серия ${Number(best.ep)} · все площадки`]);
+      out.push(['var(--accent)', `«${esc(best.title)}»: ${short(total(best))} просмотров${medTotal ? `, ×${fx(total(best) / medTotal)} к медиане проекта` : ''}. Такой формат стоит повторить.`, `серия ${epNo(best.ep)} · все площадки`]);
     }
     const ig = eps.filter((e) => e.stat.ig && e.stat.ig.views >= 200 && e.stat.ig.saves != null);
     if (ig.length >= 2) {
       const rate = (e) => e.stat.ig.saves / e.stat.ig.views;
       const avg = ig.reduce((s, e) => s + e.stat.ig.saves, 0) / ig.reduce((s, e) => s + e.stat.ig.views, 0);
       const saver = ig.reduce((b, e) => rate(e) > rate(b) ? e : b);
-      if (avg > 0 && rate(saver) / avg >= 1.2) out.push(['var(--good)', `«${esc(saver.title)}» сохраняют в Instagram в ${fx(rate(saver) / avg)} раза чаще среднего: к таким советам возвращаются.`, `серия ${Number(saver.ep)} · ${fmt(saver.stat.ig.saves)} сохранений`]);
+      if (avg > 0 && rate(saver) / avg >= 1.2) out.push(['var(--good)', `«${esc(saver.title)}» сохраняют в Instagram в ${fx(rate(saver) / avg)} раза чаще среднего: к таким советам возвращаются.`, `серия ${epNo(saver.ep)} · ${fmt(saver.stat.ig.saves)} сохранений`]);
     }
     // The weakest hold among the rest (the leader is not called weak), when it is clearly below the average.
     const ret = eps.filter((e) => e.stat.ig?.ret != null && e.stat.ig.views >= 200);
     const avgRet = ret.length ? ret.reduce((s, e) => s + e.stat.ig.ret, 0) / ret.length : 0;
     const weak = ret.filter((e) => e !== best).sort((a, b) => a.stat.ig.ret - b.stat.ig.ret)[0];
     if (ret.length >= 3 && weak && weak.stat.ig.ret <= avgRet - 5) {
-      out.push(['var(--bad)', `«${esc(weak.title)}» досматривают реже всех. Стоит проверить первые две секунды.`, `серия ${Number(weak.ep)} · досмотр в Instagram ${pct(weak.stat.ig.ret)}`]);
+      out.push(['var(--bad)', `«${esc(weak.title)}» досматривают реже всех. Стоит проверить первые две секунды.`, `серия ${epNo(weak.ep)} · досмотр в Instagram ${pct(weak.stat.ig.ret)}`]);
     }
     const views = eps.reduce((s, e) => s + total(e), 0), fol = followersOf(P);
     if (views >= 1000) out.push(['var(--warn)', `На 1000 просмотров приходит ${fx(fol / views * 1000)} подписчика. Призыв подписаться в конце серии и закреплённый пост с плейлистом поднимают эту цифру.`, `${fmt(fol)} подписчиков на ${short(views)} просмотров`]);
@@ -387,7 +389,7 @@ function start(DATA) {
           <div style="min-width:0"><div class="t">${p.name}</div><div class="m">не подключён</div></div><div class="r m">—</div></button>`).join('')}
       </div></section>
       <section class="card"><h2 class="h2">Взлетели</h2>${hot.length ? `<div class="rows">
-        ${hot.map((e) => `<button class="row" type="button" data-ep="${e.ep}"><span class="epn">${Number(e.ep)}</span>
+        ${hot.map((e) => `<button class="row" type="button" data-ep="${e.ep}"><span class="epn">${epNo(e.ep)}</span>
           <div style="min-width:0"><div class="t">${esc(e.title)}</div><div class="chips">${hotChips(e)}</div></div>
           <div class="r num">${short(total(e))}</div></button>`).join('')}
       </div>` : '<p class="note">Пока ни одна серия не обогнала медиану канала в 2,5 раза.</p>'}</section>
@@ -432,7 +434,7 @@ function start(DATA) {
       </div>
       <section class="card"><h2 class="h2">Серии по просмотрам</h2>${ranked.length ? `
         <div class="rank">${ranked.map((e) => { const v = e.stat[p.id].views; return `<button type="button" data-ep="${e.ep}">
-          <span class="lab">${Number(e.ep)}</span>
+          <span class="lab">${epNo(e.ep)}</span>
           <span class="track"><i class="fill d-${p.id}" style="width:${(v / max * 100).toFixed(1)}%;opacity:${isHot(e, p.id) ? 1 : .45}"></i>
             ${med != null && P.cnt[p.id] >= 3 ? `<i class="median" style="left:${(med / max * 100).toFixed(1)}%"></i>` : ''}<span class="name">${esc(e.title)}</span></span>
           <span class="v num">${short(v)}</span></button>`; }).join('')}</div>
@@ -452,7 +454,7 @@ function start(DATA) {
           <button type="button" data-sort="views" aria-pressed="${state.sort === 'views'}">По просмотрам</button>
         </div></div>
       ${list.length ? `<section class="card"><div class="rows">
-        ${list.map((e) => { const t = total(e); return `<button class="row" type="button" data-ep="${e.ep}"><span class="epn">${Number(e.ep)}</span>
+        ${list.map((e) => { const t = total(e); return `<button class="row" type="button" data-ep="${e.ep}"><span class="epn">${epNo(e.ep)}</span>
           <div style="min-width:0"><div class="t">${esc(e.title)}</div><div class="m">вышла ${ddmm(e.published)}</div>
             <div class="bar">${t ? PLAT.map((p) => `<i class="d-${p.id}" style="width:${((e.stat[p.id]?.views ?? 0) / t * 100).toFixed(1)}%"></i>`).join('') : ''}</div>
             ${hotChips(e) ? `<div class="chips">${hotChips(e)}</div>` : ''}</div>
@@ -470,7 +472,7 @@ function start(DATA) {
       : best.ratio >= 1 ? `<span class="chip good">Выше медианы в ${best.p.name}</span>` : `<span class="chip bad">Ниже медианы на всех площадках</span>`;
     return `<div class="sheet-wrap" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
       <div class="grab"></div>
-      <div class="sheet-head"><span class="epn">${Number(e.ep)}</span><div style="min-width:0"><h2 class="h1" id="sheet-title" style="font-size:17px">${esc(e.title)}</h2><div class="m" style="color:var(--muted);font-size:12px">${esc(P.name)} · вышла ${ddmm(e.published)} · ${short(total(e))} просмотров всего</div></div>
+      <div class="sheet-head"><span class="epn">${epNo(e.ep)}</span><div style="min-width:0"><h2 class="h1" id="sheet-title" style="font-size:17px">${esc(e.title)}</h2><div class="m" style="color:var(--muted);font-size:12px">${esc(P.name)} · вышла ${ddmm(e.published)} · ${short(total(e))} просмотров всего</div></div>
         <button class="x" type="button" data-close="1" aria-label="Закрыть карточку">✕</button></div>
       ${verdict ? `<div>${verdict}</div>` : ''}
       <section class="card"><div class="tbl-wrap"><table>
