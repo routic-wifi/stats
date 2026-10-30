@@ -310,7 +310,7 @@ function start(DATA) {
         <div class="kpi"><span class="lbl">Взлёты</span><span class="val num">${hot}</span><span class="sub">серий выше медианы ×2,5</span></div>
       </div>
       <section class="card"><h2 class="h2">По проектам</h2><div class="rows">
-        ${rows.map((r) => `<button class="row" type="button" data-proj="${r.pr.slug}">${avatar(r.pr)}
+        ${rows.map((r, i) => `<button class="row" type="button" data-proj="${r.pr.slug}"><span class="pav${i === 0 ? ' main' : ''}">${i + 1}</span>
           <div style="min-width:0"><div class="t">${esc(r.pr.name)}</div>${splitBar(r.s, rows[0].views ? r.views / rows[0].views * 100 : 2)}
             <div class="chips">${onChips(r.pr)}${r.hot ? `<span class="chip hot">Взлёт · ${series(r.hot)}</span>` : ''}</div></div>
           <div class="r num">${short(r.views)}<div class="m ${deltaOf(r.pr) >= 0 ? 'up' : 'down'}">${signed(deltaOf(r.pr))} подп.</div></div></button>`).join('')}
