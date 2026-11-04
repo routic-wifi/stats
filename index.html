@@ -209,8 +209,11 @@ function start(DATA) {
   const series = (n) => `${n} ${plural(n, ['серия', 'серии', 'серий'])}`;
   const ddmm = (iso) => iso ? `${iso.slice(8, 10)}.${iso.slice(5, 7)}` : '—';
   const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  // Specials are stored as 100 + k (Routik's «Спецвыпуск №k»).
-  const epNo = (ep) => Number(ep) > 100 ? `СП${Number(ep) - 100}` : Number(ep);
+  // Specials are stored as 100 + k (Routik's «Спецвыпуск №k»), trial reels as 200 + the episode. Posts that are not
+  // episodes have letters: «K<n>» a carousel, «HW» the Halloween reel; they count in the views but not in the medians.
+  const epNo = (ep) => ep === 'HW' ? '🎃' : /^K\d+$/.test(ep) ? `К${ep.slice(1)}`
+    : Number(ep) > 200 ? `П${Number(ep) - 200}` : Number(ep) > 100 ? `СП${Number(ep) - 100}` : Number(ep);
+  const isEpisode = (e) => /^\d+$/.test(e.ep);
   const signed = (n) =>`${n > 0 ? '+' : n < 0 ? '−' : '+'}${fmt(Math.abs(n))}`;
 
   // ---------- data ----------
@@ -222,7 +225,7 @@ function start(DATA) {
     pr.on = PLAT.filter((p) => pr.account[p.id]);
     pr.med = {}; pr.cnt = {};
     for (const p of PLAT) {
-      const vs = pr.eps.map((e) => e.stat[p.id]?.views).filter((v) => v != null);
+      const vs = pr.eps.filter(isEpisode).map((e) => e.stat[p.id]?.views).filter((v) => v != null);
       pr.cnt[p.id] = vs.length;
       pr.med[p.id] = vs.length ? median(vs) : null;
     }
@@ -230,7 +233,7 @@ function start(DATA) {
   const total = (e) => PLAT.reduce((s, p) => s + (e.stat[p.id]?.views ?? 0), 0);
   const reacts = (s) => (s.likes ?? 0) + (s.comments ?? 0) + (s.shares ?? 0);
   const ratioOf = (e, pid, pr) => { const s = e.stat[pid], m = pr.med[pid]; return s && m && pr.cnt[pid] >= 3 ? s.views / m : null; };
-  const isHot = (e, pid, pr = P) => { const r = ratioOf(e, pid, pr); return r != null && r >= HOT && e.stat[pid].views >= HOT_MIN; };
+  const isHot = (e, pid, pr = P) => { const r = ratioOf(e, pid, pr); return isEpisode(e) && r != null && r >= HOT && e.stat[pid].views >= HOT_MIN; };
   const bestPlat = (e, pr = P) => PLAT.map((p) => ({ p, ratio: ratioOf(e, p.id, pr) })).filter((x) => x.ratio != null).sort((a, b) => b.ratio - a.ratio)[0] || null;
   const followersOf = (pr) => pr.on.reduce((s, p) => s + pr.account[p.id].followers, 0);
   const deltaOf = (pr) => pr.on.reduce((s, p) => s + pr.account[p.id].delta, 0);
@@ -300,7 +303,7 @@ function start(DATA) {
     const channels = PROJECTS.reduce((s, pr) => s + pr.on.length, 0);
     const byPlat = Object.fromEntries(PLAT.map((p) => [p.id, rows.reduce((s, r) => s + r.s[p.id], 0)]));
     // Projects differ in size, so the best episodes are compared by their multiple of the channel's own median.
-    const top = PROJECTS.flatMap((pr) => pr.eps.map((e) => ({ pr, e, best: bestPlat(e, pr) }))).filter((x) => x.best && x.best.ratio > 1)
+    const top = PROJECTS.flatMap((pr) => pr.eps.filter(isEpisode).map((e) => ({ pr, e, best: bestPlat(e, pr) }))).filter((x) => x.best && x.best.ratio > 1)
       .sort((a, b) => b.best.ratio - a.best.ratio).slice(0, 5);
     return `<div class="head"><h1 class="h1">Проекты</h1>${periodSeg()}</div>
       <div class="kpis">
@@ -329,7 +332,7 @@ function start(DATA) {
   }
 
   function insights() {
-    const eps = P.eps.filter((e) => total(e) > 0);
+    const eps = P.eps.filter((e) => isEpisode(e) && total(e) > 0);
     const out = [];
     const best = eps.length ? eps.reduce((b, e) => total(e) > total(b) ? e : b) : null;
     if (eps.length >= 2) {
@@ -350,7 +353,7 @@ function start(DATA) {
     if (ret.length >= 3 && weak && weak.stat.ig.ret <= avgRet - 5) {
       out.push(['var(--bad)', `«${esc(weak.title)}» досматривают реже всех. Стоит проверить первые две секунды.`, `серия ${epNo(weak.ep)} · досмотр в Instagram ${pct(weak.stat.ig.ret)}`]);
     }
-    const views = eps.reduce((s, e) => s + total(e), 0), fol = followersOf(P);
+    const views = P.eps.reduce((s, e) => s + total(e), 0), fol = followersOf(P);
     if (views >= 1000) out.push(['var(--warn)', `На 1000 просмотров приходит ${fx(fol / views * 1000)} подписчика. Призыв подписаться в конце серии и закреплённый пост с плейлистом поднимают эту цифру.`, `${fmt(fol)} подписчиков на ${short(views)} просмотров`]);
     if (!out.length) return '<p class="note">Наблюдения появятся, когда у серий наберутся просмотры.</p>';
     return out.map(([c, t, s]) => `<div class="insight"><i class="stripe" style="background:${c}"></i><div><p>${t}</p><small>${s}</small></div></div>`).join('');
